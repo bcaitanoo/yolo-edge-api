@@ -1,16 +1,12 @@
-services: 
+services:
+  yolo-api:
+    image: ghcr.io/bcaitanoo/yolo-edge-api/yolo-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.api
 
-  yolo-api: 
-        image: ghcr.io/bcaitanoo/yolo-edge-api/yolo-api:latest
-    build: 
-
-      context: . 
-
-      dockerfile: Dockerfile.api 
-
-    container_name: yolo-api 
-
-    ports: 
+    container_name: yolo-api
+    ports:
 
       - "8000:8000" 
 
