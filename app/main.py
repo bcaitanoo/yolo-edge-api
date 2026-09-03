@@ -1,23 +1,21 @@
 import asyncio
 import base64
 import io
+import json
 import subprocess
 import time
+import uuid
 
 import cv2
 import httpx
 import numpy as np
-import json 
 
-import uuid 
-
- 
 
 def log_event(event: str, level: str = "INFO", **kwargs): 
 
     """Emite um evento estruturado em JSON para stdout.""" 
 
-    import time 
+    import time
 
     record = { 
 
@@ -290,7 +288,7 @@ def predict(request: PredictRequest):
 
         else: 
 
-            import httpx 
+            import httpx
 
             resp = httpx.get(request.image_url, timeout=10) 
 
