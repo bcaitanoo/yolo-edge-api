@@ -8,13 +8,9 @@ Uso: python scripts/validate_model.py [--threshold 0.50]
 
 """ 
 
-import argparse 
-
-import sys 
-
-from pathlib import Path 
-
- 
+import argparse
+import sys
+from pathlib import Path
 
 # Limiar padrão de qualidade 
 
@@ -56,7 +52,7 @@ def main():
 
  
 
-    from ultralytics import YOLO 
+    from ultralytics import YOLO
 
     model = YOLO(str(model_path)) 
 
@@ -88,13 +84,13 @@ def main():
 
     if map50 < args.threshold: 
 
-        print(f"[FALHA] mAP abaixo do limiar. Deploy bloqueado.") 
+        print("[FALHA] mAP abaixo do limiar. Deploy bloqueado.") 
 
         sys.exit(1) 
 
  
 
-    print(f"[OK] Quality gate aprovado. Deploy autorizado.") 
+    print("[OK] Quality gate aprovado. Deploy autorizado.") 
 
  
 

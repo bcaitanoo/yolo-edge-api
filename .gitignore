@@ -1,35 +1,18 @@
-# Pesos do modelo (gerenciados pelo DVC) 
+# Python / Pytest
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
 
-# models/*.pt 
+# DVC / Modelos pesados
+models/*.pt
 
-models/*.onnx 
+# Logs e arquivos temporários
+*.log
+output/
+payload.json
 
- 
-
-# Outputs de inferência 
-
-output/ 
-
- 
-
-# Python 
-
-__pycache__/ 
-
-*.pyc 
-
-.pytest_cache/ 
-
-.venv/ 
-
- 
-
-# Imagens de teste grandes 
-
-images/ 
-
- 
-
-# Variáveis de ambiente locais 
-
-.env
+# Ambientes Virtuais e IDEs
+.venv/
+venv/
+.vscode/
