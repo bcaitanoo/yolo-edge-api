@@ -9,6 +9,9 @@ import uuid
 import cv2
 import httpx
 import numpy as np
+from PIL import Image
+
+from preprocessing.preprocessor import CONFIG_DEFAULT, Preprocessor
 
 
 def log_event(event: str, level: str = "INFO", **kwargs): 
@@ -34,7 +37,6 @@ def log_event(event: str, level: str = "INFO", **kwargs):
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import HTMLResponse, StreamingResponse
 from model import get_default_model_name, load_model
-from PIL import Image
 from schemas import (
     BatchPredictRequest,
     BatchPredictResponse,
@@ -59,7 +61,11 @@ app = FastAPI(
 
 _metrics = {"total": 0, "success": 0, "total_ms": 0.0} 
 
+
 _streaming_lock = asyncio.Lock() 
+
+_preprocessor = Preprocessor(CONFIG_DEFAULT)   # instância global 
+
 
 def _decode_image(image_base64: str) -> np.ndarray: 
 
@@ -169,15 +175,29 @@ def _capture_frame_from_camera(device_id: int = 0) -> np.ndarray:
 
     ) 
 
- 
-
 def _run_inference(image_np: np.ndarray, model_name: str, confidence: float) -> PredictResponse: 
 
     model = load_model(model_name) 
 
+ 
+
+    # Pré-processamento explícito 
+
+    # image_np chega em RGB (já convertido em _decode_image) -- 
+
+    # o Preprocessor espera BGR, então converte temporariamente 
+
+    frame_bgr   = image_np[:, :, ::-1] 
+
+    preproc_res = _preprocessor.process(frame_bgr) 
+
+    frame_ready = preproc_res.frame  # RGB, letterboxed 
+
+ 
+
     t0 = time.perf_counter() 
 
-    results = model(image_np, conf=confidence, verbose=False) 
+    results = model(frame_ready, conf=confidence, verbose=False) 
 
     elapsed_ms = (time.perf_counter() - t0) * 1000 
 
@@ -189,7 +209,15 @@ def _run_inference(image_np: np.ndarray, model_name: str, confidence: float) -> 
 
         for box in r.boxes: 
 
-            coords = box.xyxy[0].tolist() 
+            # Ajusta as coordenadas do espaço letterboxed de volta ao 
+
+            # espaço da imagem original -- sem isso, os bboxes retornados 
+
+            # pela API ficam deslocados sempre que houver padding 
+
+            bbox_lb = box.xyxy[0].numpy().reshape(1, 4) 
+
+            bbox_orig = _preprocessor.adjust_boxes(bbox_lb, preproc_res)[0] 
 
             cls_id = int(box.cls[0].item()) 
 
@@ -203,7 +231,7 @@ def _run_inference(image_np: np.ndarray, model_name: str, confidence: float) -> 
 
                 confidence=round(conf_val, 4), 
 
-                bbox=[round(float(c), 2) for c in coords], 
+                bbox=[round(float(c), 2) for c in bbox_orig], 
 
             )) 
 
@@ -224,9 +252,6 @@ def _run_inference(image_np: np.ndarray, model_name: str, confidence: float) -> 
         image_height=h, 
 
     ) 
-
- 
-
 # ── Endpoints Originais ───────────────────────────────────── 
 
  
