@@ -1,0 +1,7 @@
+path: /home/bcaitano/yolo-edge-api/dataset/exports/epi-v1
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 3
+names: ['helmet', 'vest', 'person']

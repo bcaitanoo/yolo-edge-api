@@ -7,11 +7,19 @@ Quality gate: bloqueia o deploy se o mAP@0.5 estiver abaixo do limiar.
 Uso: python scripts/validate_model.py [--threshold 0.50] 
 
 """ 
-
+import torch
 import argparse
 import sys
 from pathlib import Path
 
+
+# Patch de compatibilidade para PyTorch 2.6+
+_orig_torch_load = torch.load
+def _patched_torch_load(*args, **kwargs):
+    if "weights_only" not in kwargs:
+        kwargs["weights_only"] = False
+    return _orig_torch_load(*args, **kwargs)
+torch.load = _patched_torch_load
 # Limiar padrão de qualidade 
 
 DEFAULT_THRESHOLD = 0.50 
