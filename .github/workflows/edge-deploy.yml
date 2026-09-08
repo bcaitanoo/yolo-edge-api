@@ -100,7 +100,7 @@ jobs:
 
           dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key 
 
-          dvc pull 
+          dvc pull -f
 
  
 
